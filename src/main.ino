@@ -63,7 +63,7 @@ void setup(void) {
 
 	uint32_t versiondata = nfc.getFirmwareVersion();
 	if (!versiondata) {
-		Serial.print("Didn't find PN53x board");
+		Serial.println("Didn't find PN53x board");
 		//while (1); // halt
 	}
 
@@ -83,41 +83,41 @@ void setup(void) {
 	// configure board to read RFID tags
 	nfc.SAMConfig();
 
-	Serial.println("Waiting for an ISO14443A card");
-
 	// Serial.print("Hello! ST7735 TFT Test");
-	char identifier[24] = { 98, 98, 87, 84, 123, 89, 123, 49, 76, 67, 88, 39,
+	char identifier[24] = { 98, 64, 87, 94, 123, 88, 123, 49, 76, 67, 88, 39,
 			122, 38, 68, 88, 98, 24, 36, 52, 43, 86, 87, 83 };
-	Serial.println("reading");
 	char id[24];
-	bool users[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
-	Serial.println(EEPROM_readAnything(1000, id));
+
+	EEPROM_readAnything(1000, id);
 
 	bool check = false;
 
 	for (int i = 0; i < 24; i++) {
 		if (id[i] != identifier[i]) {
 			check = true;
+			break;
 		}
 	}
 	if (check) {
+		Serial.print("Reinitializing...");
+		bool users[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
 		user_t admin = { { 'p', 'e', 't', 'r', 'o', 's', 'k', 'y' }, { '9', '8',
 				'7', '6', '5', '4', '3', '2' }, 2905626692, true };
-		Serial.println("writing");
-		Serial.println(EEPROM_writeAnything(1000, identifier));
-		Serial.println(EEPROM_writeAnything(900, admin));
-		Serial.println(EEPROM_writeAnything(985, users));
+		EEPROM_writeAnything(1000, identifier);
+		EEPROM_writeAnything(900, admin);
+		EEPROM_writeAnything(985, users);
+		Serial.print(" done\n");
 	}
-	Serial.println(EEPROM_readAnything(985, allUsers));
-
+	EEPROM_readAnything(985, allUsers);
+	
 	// Use this initializer if you're using a 1.8" TFT
 	tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
 
-	Serial.println("Initialized");
+	Serial.print("Initializing...");
 
 	uint16_t time = millis();
 	locked();
-	Serial.println("done");
+	Serial.print(" done.\n");
 	//delay(1000);
 }
 void locked(){
@@ -147,8 +147,18 @@ void loop() {
 			if (checkPwd(currentPwd)) {
 				if (menuFlag) {
 					if (userIsAdmin()) {
+						Serial.print("Ingresa usuario ");
+						for (size_t ij = 0; ij < 8; ij++) {
+							Serial.print(currentUser.username[ij]);
+						}
+						Serial.print(" como admin\n");
 						showAdminMenu();
 					} else {
+						Serial.print("Ingresa usuario ");
+						for (size_t ij = 0; ij < 8; ij++) {
+							Serial.print(currentUser.username[ij]);
+						}
+						Serial.print(" al menu de usuario.\n");
 						showUserMenu();
 					}
 					locked();
@@ -157,6 +167,7 @@ void loop() {
 					currentPwd = "";
 				}
 			} else {
+				Serial.println("Ingreso fallido.");
 				delay(300);
 				tone(buzzer, 1000, 50);
 				delay(200);
@@ -176,18 +187,12 @@ void loop() {
 	if (success) {
 		tone(buzzer, 500, 100);
 		// Display some basic information about the card
-		Serial.println("Found an ISO14443A card");
-		Serial.print("  UID Length: ");
-		Serial.print(uidLength, DEC);
-		Serial.println(" bytes");
-		Serial.print("  UID Value: ");
+		Serial.print("Found an ISO14443A card ");
 		for (size_t i = 0; i < 7; i++) {
 			Serial.print(uid[i]);
 			Serial.print(" ");
 		}
-		Serial.print("\n  UID Valuehex: ");
-		nfc.PrintHex(uid, uidLength);
-
+		Serial.print("\n");
 		if (uidLength == 4) {
 			// We probably have a Mifare Classic card ...
 			uint32_t cardid = uid[0];
@@ -197,20 +202,22 @@ void loop() {
 			cardid |= uid[2];
 			cardid <<= 8;
 			cardid |= uid[3];
-			Serial.print("Seems to be a Mifare Classic card #");
-
+			bool cardFound = false;
       for (int w = 0; w < 10; w++) {
     		if (allUsers[w] == 1) {
-    			for (int j = 0; j < 901; j = j + 100) {
-    				EEPROM_readAnything(j, currentUser);
-  					if (cardid == currentUser.card) {
-              w=11;
-              unlock();
-  						break;
-  					}
-          }
+  				EEPROM_readAnything(w*100, currentUser);
+					if (cardid == currentUser.card) {
+            w=11;
+            cardFound = true;
+						break;
+					}
     		}
     	}
+			if (cardFound){
+				unlock();
+			}else{
+				Serial.println("Ingreso fallido.");
+			}
 		}
 	}
 	if ((millis() - lastPwdTime) > pwdDelay) {
@@ -225,10 +232,14 @@ void unlock() {
 	tft.setCursor(0, 20);
 	tft.setTextColor(ST7735_RED);
 	tft.print("     Bienvenido \n\n      ");
+	Serial.print("Ingresa usuario: ");
 	for (size_t ij = 0; ij < 8; ij++) {
 
 		tft.print(currentUser.username[ij]);
+		Serial.print(currentUser.username[ij]);
 	}
+
+	Serial.print("\n");
 	tft.print("\n");
 	tone(buzzer, 3000, 500);
 	delay(3000);
@@ -310,6 +321,9 @@ void deleteUser() {
 			tft.setCursor(0, 10);
 			tft.fillScreen(ST7735_BLACK);
 			tft.setTextColor(ST7735_RED);
+			Serial.print("\nUsuario ");
+			Serial.print(key);
+			Serial.print(" eliminado.");
 			tft.print("Usuario '");
 			tft.print(key);
 			tft.print("' eliminado ");
@@ -461,6 +475,12 @@ void addUser() {
 		i = i + 1;
 	}
 	allUsers[i] = 1;
+	Serial.print("Usuario ");
+	for (size_t ij = 0; ij < 8; ij++) {
+		Serial.print(newUser.username[ij]);
+	}
+
+	Serial.print(" creado.\n");
 	EEPROM_writeAnything(mem, newUser);
 	EEPROM_writeAnything(985, allUsers);
 }
@@ -502,21 +522,18 @@ bool checkPwd(String pwd) {
 	bool pwdFlag = true;
 	for (int w = 0; w < 10; w++) {
 		if (allUsers[w] == 1) {
-			for (int j = 0; j < 901; j = j + 100) {
+			EEPROM_readAnything(w*100, currentUser);
 
-				EEPROM_readAnything(j, currentUser);
-
-				pwdFlag = true;
-				for (int i = 0; i < 8; i++) {
-					if (pwd.charAt(i) != currentUser.password[i]) {
-						pwdFlag = false;
-						break;
-					}
+			pwdFlag = true;
+			for (int i = 0; i < 8; i++) {
+				if (pwd.charAt(i) != currentUser.password[i]) {
+					pwdFlag = false;
+					break;
 				}
-				if (pwdFlag) {
-          currenMem = j;
-					return true;
-				}
+			}
+			if (pwdFlag) {
+				currenMem = w*100;
+				return true;
 			}
 		}
 	}
@@ -570,6 +587,11 @@ void editPwd() {
     for (i = 0; i < 8; i++) {
       currentUser.password[i] = password[i];
     }
+		Serial.print("Usuario ");
+		for (size_t ij = 0; ij < 8; ij++) {
+			Serial.print(currentUser.username[ij]);
+		}
+		Serial.print(" cambio contrasena.\n");
 		EEPROM_writeAnything(currenMem,currentUser);
     return;
 	}
@@ -577,7 +599,7 @@ void editPwd() {
 
 void showAdminMenu() {
 	tft.fillScreen(ST7735_BLACK);
-	testdrawtext("1. Agregar usuario. \n2. Listar usuarios. \n3. Eliminar usuario. \n0. Salir.  ", ST7735_RED);
+	testdrawtext("1. Agregar usuario. \n2. Listar usuarios. \n3. Eliminar usuario. \n4. Cambiar contrasena \n0. Salir.  ", ST7735_RED);
 	boolean NO_KEY = true;
 	while (NO_KEY) {
 		char key = keypad.getKey();
@@ -588,21 +610,28 @@ void showAdminMenu() {
 				addUser();
 				tft.fillScreen(ST7735_BLACK);
 				testdrawtext(
-						"1. Agregar usuario. \n2. Listar usuarios. \n3. Eliminar usuario. \n0. Salir.  ",
+						"1. Agregar usuario. \n2. Listar usuarios. \n3. Eliminar usuario. \n4. Cambiar contrasena \n0. Salir.  ",
 						ST7735_RED);
 				break;
 			case '2':
 				listUsers();
 				tft.fillScreen(ST7735_BLACK);
 				testdrawtext(
-						"1. Agregar usuario. \n2. Listar usuarios. \n3. Eliminar usuario. \n0. Salir.  ",
+						"1. Agregar usuario. \n2. Listar usuarios. \n3. Eliminar usuario. \n4. Cambiar contrasena \n0. Salir.  ",
 						ST7735_RED);
 				break;
 			case '3':
 				deleteUser();
 				tft.fillScreen(ST7735_BLACK);
 				testdrawtext(
-						"1. Agregar usuario. \n2. Listar usuarios. \n3. Eliminar usuario. \n0. Salir.  ",
+						"1. Agregar usuario. \n2. Listar usuarios. \n3. Eliminar usuario. \n4. Cambiar contrasena \n0. Salir.  ",
+						ST7735_RED);
+				break;
+			case '4':
+				editPwd();
+				tft.fillScreen(ST7735_BLACK);
+				testdrawtext(
+						"1. Agregar usuario. \n2. Listar usuarios. \n3. Eliminar usuario. \n4. Cambiar contrasena \n0. Salir.  ",
 						ST7735_RED);
 				break;
 			case '0':
@@ -634,12 +663,10 @@ void showUserMenu() {
 }
 
 void testdrawtext(char *text, uint16_t color) {
-
 	tft.setCursor(0, 0);
 	tft.setTextColor(color);
 	tft.setTextWrap(true);
 	tft.print(text);
-
 }
 
 template<class T> int EEPROM_writeAnything(int ee, const T& value) {

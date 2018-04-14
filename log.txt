@@ -1,0 +1,64 @@
+Didn't find PN53x board
+Found chip PN50
+Firmware ver. 0.0
+Initializing... done.
+Found an ISO14443A card 173 48 88 68 0 0 0 
+Ingresa usuario: 11111111
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 219 85 143 248 0 0 0 
+Ingreso fallido.
+Found an ISO14443A card 173 48 88 68 0 0 0 
+Ingresa usuario: 11111111
